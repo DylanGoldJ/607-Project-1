@@ -3,16 +3,165 @@ title: "607_Project1_DylanGold"
 format: html
 editor: visual
 ---
+
 # 607 Project 1 Dylan Gold
 
 ## Approach
 
-In this assignment we have to parse a text file that was given to us and use the information in the file to generate a pre-chess rating of all the opponents.
-Once we do this we create a csv with the Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents.
+In this assignment we have to parse a text file that was given to us and use the information in the file to generate a pre-chess rating of all the opponents. Once we do this we create a csv with the Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents.
 
-The initial challenge is parsing the text file. All the information is on the row plaintext except for the average pre-chess rating of opponents.
-For this we need to also store every match and use this information to get the average pre-chess rating. 
-Because the data is separated by | for each entry we could probably use this to split the information. This might be easier in python with its built in split but it looks like R has str_split() as well which should make it easier. We can try some regex for separating the wins and player in each round, though it would probably be easier to just take the first character for the win status.
+The initial challenge is parsing the text file. All the information is on the row plaintext except for the average pre-chess rating of opponents. For this we need to also store every match and use this information to get the average pre-chess rating. Because the data is separated by \| for each entry we could probably use this to split the information. This might be easier in python with its built in split but it looks like R has str_split() as well which should make it easier. We can try some regex for separating the wins and player in each round, though it would probably be easier to just take the first character for the win status.
 
 I will create a data frame with csv output format we need then write.csv() to create our csv.
 
+##Codebase Dplyr set up, as well as stringi for parsing strings better
+
+```{r , message=FALSE, warning=FALSE}
+library(tidyverse)
+library(stringi)
+```
+
+Lets start with getting the tournament info into our project as a string.
+
+```{r warning=FALSE}
+#Use readlines() to get it from a url
+tournament_txt <- readLines("https://raw.githubusercontent.com/DylanGoldJ/607-Project-1/refs/heads/main/tournamentinfo.txt")
+head(tournament_txt, 12) #Look at the top of the txt.
+```
+
+First lets split the string based on the "-+\$" pattern. This will give us each line separately. We will also use
+
+```{r}
+
+tournament_lines <- stri_split(tournament_txt,regex = "-+$", omit_empty = TRUE) #This lines composed of (and ending) in - as the delimiter
+#We have some empty characters in our string after this so we can remove them with a filter for greater than 0 lengths
+tournament_lines <- tournament_lines[lengths(tournament_lines) > 0]
+head(tournament_lines, 8)
+```
+
+We now have a list of the important lines.We can separate the every other row to organize it more I found that the equivalent to array slicing in python would be to use a seq() I will create an even and odd sequence to split the list so we can pair the elements together
+
+```{r}
+odd_sequence <- seq(1, length(tournament_lines), 2)
+even_sequence <- seq(2, length(tournament_lines),2)
+player_info1 <- tournament_lines[odd_sequence] #We create a list of lists. 
+player_info2 <- tournament_lines[even_sequence]
+#Remove the first header line
+player_info1 <- player_info1[-1]
+player_info2<- player_info2[-1]
+#Show the new first values, should be gary's lines
+player_info1[[1]]
+player_info2[[1]]
+```
+
+We now have a format that is more organized\
+We can now start parsing for our data.\
+
+As I was doing it I realized that if I did not use regex it would get pretty messy so I adopted to start using regex, I could have just parsed it from the start for next time\
+We can use str_match with regex with grouping for extracting values.\
+We can start with player number, even though its already sorted
+
+```{r}
+#Takes a player_info from a string in player_info1
+player_num <- str_match(player_info1, "(\\d+) \\| ")[,2] 
+player_num
+```
+
+I realize I can just do multiple groupings in one large regex for the whole row\
+We actually can't do this for multiple captures of the same type at once (getting the match opponent) like this as far as I can tell so we can hold off on that.
+
+```{r}
+player_groupings1 <- str_match(player_info1, "(\\d+) \\| ([\\w+ |-]+) *\\|(\\d\\.\\d) *\\|")
+player_num <- player_groupings1[,2]
+player_name <- player_groupings1[,3]
+player_points <- player_groupings1[,4]
+
+head(player_name, 8) #Show example
+```
+
+
+Now in the other list
+
+```{r}
+player_groupings2 <- str_match(player_info2, "(\\w{2}) *\\| \\d+ \\/ R: *(\\d+)(P\\d*)?")
+player_state <- player_groupings2[,2]
+player_rating <- player_groupings2[,3]
+head(player_rating, 8)
+```
+
+Now we need to get the groups for the opponent matches.\
+We can do this with str_match_all()
+I show first player as example.
+```{r}
+#We create regex for the single pattern of the opponent match, match all will find all the occurrences of it.
+opponent_groupings <- str_match_all(player_info1, "\\|[W|L|H|B|D|U|X] *(\\d*)")
+#Opponent_groupings is a list of a 7by2 character array
+#We can get the opponents of the first player as a sample
+(opponent_groupings[[1]])[,2]
+
+```
+
+Now we make a list of these values
+
+```{r}
+#I was not sure how to get this sub-list all at once so I used a loop
+#We initialize a list with vector to give length upfront
+player_opponents <- vector("list", length(opponent_groupings))
+for(i in 1 : length(opponent_groupings)){
+  player_opponents[[i]] <- opponent_groupings[[i]][,2]
+}
+head(player_opponents, 8)
+```
+
+We now have all the pieces, now we just need to get the opponents average rating. First I will combine all of this into a data frame.
+
+```{r}
+player_data <- data.frame (
+  number = as.integer(player_num), #Convert from character to int
+  name = player_name,
+  state = player_state,
+  points = as.numeric(player_points),
+  rating = as.numeric(player_rating)
+)
+player_data <- player_data %>% mutate(
+  opponents = player_opponents
+)
+
+head(player_data,12) #Dataframe is made properly
+```
+
+Now we just need to use the opponents column to get the average rating of the opponents
+
+```{r}
+#I create a function that when given a chr vector of players, will give me the average rating of those players
+
+get_avg_opp_rating <- function(opponents){ #I just loop through, probably better dplyr functions
+  opponents <- opponents[opponents != ""] #Get rid of the empty strings
+  count = 0
+  sum = 0
+  
+  for (opp in opponents ){
+      count <-  count + 1
+      rating <- filter(player_data, number == opp) %>% select("rating") %>% pull #Filter to get the row, select the rating column then full
+      sum <- sum + rating
+  }
+  
+  return (sum/count)
+}
+#Test
+print(get_avg_opp_rating(player_data[[1,6]]))
+
+```
+
+We have created a function that will let us get the avg rating given list of opponents. This value lines up with the given value for the first player.\
+Now we mutate a new column using this function.
+
+```{r}
+player_data <- player_data %>% 
+  rowwise() %>%
+  mutate(avg_opponent_rating = get_avg_opp_rating(c_across(c("opponents"))))
+
+head(player_data)
+
+```
+TODO, check an example with null elements, convert to csv after selecting the right columns
