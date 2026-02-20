@@ -73,7 +73,9 @@ We actually can't do this for multiple captures of the same type at once (gettin
 ```{r}
 player_groupings1 <- str_match(player_info1, "(\\d+) \\| ([\\w+ |-]+) *\\|(\\d\\.\\d) *\\|")
 player_num <- player_groupings1[,2]
-player_name <- player_groupings1[,3]
+player_name <-player_groupings1[,3] %>%
+  str_trim() #Because we look for { } or {-} inbetween names we are left with the empty space at the end of the name. str_trim will remove this whitespace
+
 player_points <- player_groupings1[,4]
 
 head(player_name, 8) #Show example
@@ -135,7 +137,7 @@ Now we just need to use the opponents column to get the average rating of the op
 ```{r}
 #I create a function that when given a chr vector of players, will give me the average rating of those players
 
-get_avg_opp_rating <- function(opponents){ #I just loop through, probably better dplyr functions
+get_avg_opp_rating <- function(opponents){ #I just loop through
   opponents <- opponents[opponents != ""] #Get rid of the empty strings
   count = 0
   sum = 0
@@ -164,4 +166,33 @@ player_data <- player_data %>%
 head(player_data)
 
 ```
-TODO, check an example with null elements, convert to csv after selecting the right columns
+We can also check a row with null values to make sure everything went alright. \
+Ashwin just faced a single opponent. No player faced 0 other players so we don't have to worry about that. He is the 63th player. \
+He faces 55. We can see that Ashwin's avg_opponent_rating is the same rating as player 55, alex kong.
+```{r}
+filter(player_data, number == 62)
+filter(player_data, number == 55)
+```
+I will also test out one more just to make sure. Lets look at player 16, who faced  10, 15, 39, 2, 36. \
+I calculate myself the average of 1365, 1220, 1436, 1553, 1355. \
+This example has opponents with a P after their score.
+```{r}
+mean(c(1365, 1220, 1436, 1553, 1355))
+filter(player_data, number == 16)
+```
+We tested out some of the rows and everything seems to be working.
+Now lets create a data frame with the output information. \
+```{r}
+#Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents.
+output_df <-player_data %>% 
+  select(c("Player’s Name" = "name","Player’s State" = "state","Total Number of Points" = "points","Player’s Pre-Rating" = "rating", "Average Pre Chess Rating of Opponents" = "avg_opponent_rating")) #also set the names for better readability in the csv
+head(output_df)
+```
+Now convert to csv using write.csv()
+```{r}
+write.csv(output_df, "tournamentinfo.csv", row.names = FALSE) #print, get rid of the index column/row name
+```
+We can check our tournamentinfo.csv to see we now have the expected output.
+
+## Conclusion
+TODO

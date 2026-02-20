@@ -136,7 +136,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>tournament_lines <span class="ot">&lt;-</span> <span class="fu">stri_split</span>(tournament_txt,<span class="at">regex =</span> <span class="st">"-+$"</span>, <span class="at">omit_empty =</span> <span class="cn">TRUE</span>) <span class="co">#This lines composed of (and ending) in - as the delimiter</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#We have some empty characters in our string after this so we can remove them with a filter for greater than 0 lengths</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tournament_lines <span class="ot">&lt;-</span> tournament_lines[<span class="fu">lengths</span>(tournament_lines) <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tournament_lines, <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(tournament_lines, <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
 [1] " Pair | Player Name                     |Total|Round|Round|Round|Round|Round|Round|Round| "
@@ -160,22 +160,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 [1] "    3 | ADITYA BAJAJ                    |6.0  |L   8|W  61|W  25|W  21|W  11|W  13|W  12|"
 
 [[8]]
-[1] "   MI | 14959604 / R: 1384   -&gt;1640     |N:2  |W    |B    |W    |B    |W    |B    |W    |"
-
-[[9]]
-[1] "    4 | PATRICK H SCHILLING             |5.5  |W  23|D  28|W   2|W  26|D   5|W  19|D   1|"
-
-[[10]]
-[1] "   MI | 12616049 / R: 1716   -&gt;1744     |N:2  |W    |B    |W    |B    |W    |B    |B    |"
-
-[[11]]
-[1] "    5 | HANSHI ZUO                      |5.5  |W  45|W  37|D  12|D  13|D   4|W  14|W  17|"
-
-[[12]]
-[1] "   MI | 14601533 / R: 1655   -&gt;1690     |N:2  |B    |W    |B    |W    |B    |W    |B    |"</code></pre>
+[1] "   MI | 14959604 / R: 1384   -&gt;1640     |N:2  |W    |B    |W    |B    |W    |B    |W    |"</code></pre>
 </div>
 </div>
-<p>We now have a list of the important lines. We can separate the every other row to organize it more I found that the equivalent to array slicing in python would be to use a seq() I will create an even and odd sequence to split the list so we can pair the elements together</p>
+<p>We now have a list of the important lines.We can separate the every other row to organize it more I found that the equivalent to array slicing in python would be to use a seq() I will create an even and odd sequence to split the list so we can pair the elements together</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>odd_sequence <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="fu">length</span>(tournament_lines), <span class="dv">2</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>even_sequence <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">2</span>, <span class="fu">length</span>(tournament_lines),<span class="dv">2</span>)</span>
@@ -194,12 +182,236 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>[1] "   ON | 15445895 / R: 1794   -&gt;1817     |N:2  |W    |B    |W    |B    |W    |B    |W    |"</code></pre>
 </div>
 </div>
-<p>We now have a format that is more organized \ We can now start parsing for our data. \ We can use str_match with regex with grouping. \ We can start with player number, even though its already sorted \</p>
+<p>We now have a format that is more organized<br>
+We can now start parsing for our data.<br>
+</p>
+<p>As I was doing it I realized that if I did not use regex it would get pretty messy so I adopted to start using regex, I could have just parsed it from the start for next time<br>
+We can use str_match with regex with grouping for extracting values.<br>
+We can start with player number, even though its already sorted</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Takes a player_info from a string in player_info1</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>playerNumbers <span class="ot">&lt;-</span> <span class="fu">str_match</span>(player_info1, <span class="st">"(</span><span class="sc">\\</span><span class="st">d+) </span><span class="sc">\\</span><span class="st">| "</span>)[,<span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>player_num <span class="ot">&lt;-</span> <span class="fu">str_match</span>(player_info1, <span class="st">"(</span><span class="sc">\\</span><span class="st">d+) </span><span class="sc">\\</span><span class="st">| "</span>)[,<span class="dv">2</span>] </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>player_num</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "1"  "2"  "3"  "4"  "5"  "6"  "7"  "8"  "9"  "10" "11" "12" "13" "14" "15"
+[16] "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30"
+[31] "31" "32" "33" "34" "35" "36" "37" "38" "39" "40" "41" "42" "43" "44" "45"
+[46] "46" "47" "48" "49" "50" "51" "52" "53" "54" "55" "56" "57" "58" "59" "60"
+[61] "61" "62" "63" "64"</code></pre>
 </div>
-<p>W</p>
+</div>
+<p>I realize I can just do multiple groupings in one large regex for the whole row<br>
+We actually can’t do this for multiple captures of the same type at once (getting the match opponent) like this as far as I can tell so we can hold off on that.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>player_groupings1 <span class="ot">&lt;-</span> <span class="fu">str_match</span>(player_info1, <span class="st">"(</span><span class="sc">\\</span><span class="st">d+) </span><span class="sc">\\</span><span class="st">| ([</span><span class="sc">\\</span><span class="st">w+ |-]+) *</span><span class="sc">\\</span><span class="st">|(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d) *</span><span class="sc">\\</span><span class="st">|"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>player_num <span class="ot">&lt;-</span> player_groupings1[,<span class="dv">2</span>]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>player_name <span class="ot">&lt;-</span>player_groupings1[,<span class="dv">3</span>] <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_trim</span>() <span class="co">#Because we look for { } or {-} inbetween names we are left with the empty space at the end of the name. str_trim will remove this whitespace</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>player_points <span class="ot">&lt;-</span> player_groupings1[,<span class="dv">4</span>]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player_name, <span class="dv">8</span>) <span class="co">#Show example</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "GARY HUA"            "DAKSHESH DARURI"     "ADITYA BAJAJ"       
+[4] "PATRICK H SCHILLING" "HANSHI ZUO"          "HANSEN SONG"        
+[7] "GARY DEE SWATHELL"   "EZEKIEL HOUGHTON"   </code></pre>
+</div>
+</div>
+<p>Now in the other list</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>player_groupings2 <span class="ot">&lt;-</span> <span class="fu">str_match</span>(player_info2, <span class="st">"(</span><span class="sc">\\</span><span class="st">w{2}) *</span><span class="sc">\\</span><span class="st">| </span><span class="sc">\\</span><span class="st">d+ </span><span class="sc">\\</span><span class="st">/ R: *(</span><span class="sc">\\</span><span class="st">d+)(P</span><span class="sc">\\</span><span class="st">d*)?"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>player_state <span class="ot">&lt;-</span> player_groupings2[,<span class="dv">2</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>player_rating <span class="ot">&lt;-</span> player_groupings2[,<span class="dv">3</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player_rating, <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1794" "1553" "1384" "1716" "1655" "1686" "1649" "1641"</code></pre>
+</div>
+</div>
+<p>Now we need to get the groups for the opponent matches.<br>
+We can do this with str_match_all() I show first player as example.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#We create regex for the single pattern of the opponent match, match all will find all the occurrences of it.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>opponent_groupings <span class="ot">&lt;-</span> <span class="fu">str_match_all</span>(player_info1, <span class="st">"</span><span class="sc">\\</span><span class="st">|[W|L|H|B|D|U|X] *(</span><span class="sc">\\</span><span class="st">d*)"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Opponent_groupings is a list of a 7by2 character array</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#We can get the opponents of the first player as a sample</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>(opponent_groupings[[<span class="dv">1</span>]])[,<span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "39" "21" "18" "14" "7"  "12" "4" </code></pre>
+</div>
+</div>
+<p>Now we make a list of these values</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I was not sure how to get this sub-list all at once so I used a loop</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#We initialize a list with vector to give length upfront</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>player_opponents <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">"list"</span>, <span class="fu">length</span>(opponent_groupings))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span> <span class="sc">:</span> <span class="fu">length</span>(opponent_groupings)){</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  player_opponents[[i]] <span class="ot">&lt;-</span> opponent_groupings[[i]][,<span class="dv">2</span>]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player_opponents, <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+[1] "39" "21" "18" "14" "7"  "12" "4" 
+
+[[2]]
+[1] "63" "58" "4"  "17" "16" "20" "7" 
+
+[[3]]
+[1] "8"  "61" "25" "21" "11" "13" "12"
+
+[[4]]
+[1] "23" "28" "2"  "26" "5"  "19" "1" 
+
+[[5]]
+[1] "45" "37" "12" "13" "4"  "14" "17"
+
+[[6]]
+[1] "34" "29" "11" "35" "10" "27" "21"
+
+[[7]]
+[1] "57" "46" "13" "11" "1"  "9"  "2" 
+
+[[8]]
+[1] "3"  "32" "14" "9"  "47" "28" "19"</code></pre>
+</div>
+</div>
+<p>We now have all the pieces, now we just need to get the opponents average rating. First I will combine all of this into a data frame.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>player_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span> (</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">number =</span> <span class="fu">as.integer</span>(player_num), <span class="co">#Convert from character to int</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">name =</span> player_name,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">state =</span> player_state,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">points =</span> <span class="fu">as.numeric</span>(player_points),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">rating =</span> <span class="fu">as.numeric</span>(player_rating)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>player_data <span class="ot">&lt;-</span> player_data <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">opponents =</span> player_opponents</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player_data,<span class="dv">12</span>) <span class="co">#Dataframe is made properly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   number                     name state points rating
+1       1                 GARY HUA    ON    6.0   1794
+2       2          DAKSHESH DARURI    MI    6.0   1553
+3       3             ADITYA BAJAJ    MI    6.0   1384
+4       4      PATRICK H SCHILLING    MI    5.5   1716
+5       5               HANSHI ZUO    MI    5.5   1655
+6       6              HANSEN SONG    OH    5.0   1686
+7       7        GARY DEE SWATHELL    MI    5.0   1649
+8       8         EZEKIEL HOUGHTON    MI    5.0   1641
+9       9              STEFANO LEE    ON    5.0   1411
+10     10                ANVIT RAO    MI    5.0   1365
+11     11 CAMERON WILLIAM MC LEMAN    MI    4.5   1712
+12     12           KENNETH J TACK    MI    4.5   1663
+                    opponents
+1    39, 21, 18, 14, 7, 12, 4
+2    63, 58, 4, 17, 16, 20, 7
+3   8, 61, 25, 21, 11, 13, 12
+4     23, 28, 2, 26, 5, 19, 1
+5   45, 37, 12, 13, 4, 14, 17
+6  34, 29, 11, 35, 10, 27, 21
+7     57, 46, 13, 11, 1, 9, 2
+8    3, 32, 14, 9, 47, 28, 19
+9    25, 18, 59, 8, 26, 7, 20
+10  16, 19, 55, 31, 6, 25, 18
+11    38, 56, 6, 7, 3, 34, 26
+12      42, 33, 5, 38, , 1, 3</code></pre>
+</div>
+</div>
+<p>Now we just need to use the opponents column to get the average rating of the opponents</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#I create a function that when given a chr vector of players, will give me the average rating of those players</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>get_avg_opp_rating <span class="ot">&lt;-</span> <span class="cf">function</span>(opponents){ <span class="co">#I just loop through, probably better dplyr functions</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  opponents <span class="ot">&lt;-</span> opponents[opponents <span class="sc">!=</span> <span class="st">""</span>] <span class="co">#Get rid of the empty strings</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  count <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  sum <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (opp <span class="cf">in</span> opponents ){</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>      count <span class="ot">&lt;-</span>  count <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      rating <span class="ot">&lt;-</span> <span class="fu">filter</span>(player_data, number <span class="sc">==</span> opp) <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="st">"rating"</span>) <span class="sc">%&gt;%</span> pull <span class="co">#Filter to get the row, select the rating column then full</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>      sum <span class="ot">&lt;-</span> sum <span class="sc">+</span> rating</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (sum<span class="sc">/</span>count)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">#Test</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">get_avg_opp_rating</span>(player_data[[<span class="dv">1</span>,<span class="dv">6</span>]]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1605.286</code></pre>
+</div>
+</div>
+<p>We have created a function that will let us get the avg rating given list of opponents. This value lines up with the given value for the first player.<br>
+Now we mutate a new column using this function.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>player_data <span class="ot">&lt;-</span> player_data <span class="sc">%&gt;%</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">avg_opponent_rating =</span> <span class="fu">get_avg_opp_rating</span>(<span class="fu">c_across</span>(<span class="fu">c</span>(<span class="st">"opponents"</span>))))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(player_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 7
+# Rowwise: 
+  number name                state points rating opponents avg_opponent_rating
+   &lt;int&gt; &lt;chr&gt;               &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;list&gt;                  &lt;dbl&gt;
+1      1 GARY HUA            ON       6     1794 &lt;chr [7]&gt;               1605.
+2      2 DAKSHESH DARURI     MI       6     1553 &lt;chr [7]&gt;               1469.
+3      3 ADITYA BAJAJ        MI       6     1384 &lt;chr [7]&gt;               1564.
+4      4 PATRICK H SCHILLING MI       5.5   1716 &lt;chr [7]&gt;               1574.
+5      5 HANSHI ZUO          MI       5.5   1655 &lt;chr [7]&gt;               1501.
+6      6 HANSEN SONG         OH       5     1686 &lt;chr [7]&gt;               1519.</code></pre>
+</div>
+</div>
+<p>We can also check a row with null values to make sure everything went alright.<br>
+Ashwin just faced a single opponent. No player faced 0 other players so we don’t have to worry about that. He is the 63th player.<br>
+He faces 55. We can see that Ashwin’s avg_opponent_rating is the same rating as player 55, alex kong.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(player_data, number <span class="sc">==</span> <span class="dv">62</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 7
+# Rowwise: 
+  number name          state points rating opponents avg_opponent_rating
+   &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;list&gt;                  &lt;dbl&gt;
+1     62 ASHWIN BALAJI MI         1   1530 &lt;chr [7]&gt;                1186</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span>(player_data, number <span class="sc">==</span> <span class="dv">55</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 7
+# Rowwise: 
+  number name      state points rating opponents avg_opponent_rating
+   &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;list&gt;                  &lt;dbl&gt;
+1     55 ALEX KONG MI         2   1186 &lt;chr [7]&gt;                1406</code></pre>
+</div>
+</div>
+<p>Now lets create a dataframe with the output information.<br>
+</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents.</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>output_df <span class="ot">&lt;-</span>player_data <span class="sc">%&gt;%</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="st">"Player’s Name"</span> <span class="ot">=</span> <span class="st">"name"</span>,<span class="st">"Player’s State"</span> <span class="ot">=</span> <span class="st">"state"</span>,<span class="st">"Total Number of Points"</span> <span class="ot">=</span> <span class="st">"points"</span>,<span class="st">"Player’s Pre-Rating"</span> <span class="ot">=</span> <span class="st">"rating"</span>, <span class="st">"Average Pre Chess Rating of Opponents"</span> <span class="ot">=</span> <span class="st">"avg_opponent_rating"</span>)) <span class="co">#also set the names for better readability in the csv</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(output_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+# Rowwise: 
+  `Player’s Name`  `Player’s State` Total Number of Poin…¹ `Player’s Pre-Rating`
+  &lt;chr&gt;            &lt;chr&gt;                             &lt;dbl&gt;                 &lt;dbl&gt;
+1 GARY HUA         ON                                  6                    1794
+2 DAKSHESH DARURI  MI                                  6                    1553
+3 ADITYA BAJAJ     MI                                  6                    1384
+4 PATRICK H SCHIL… MI                                  5.5                  1716
+5 HANSHI ZUO       MI                                  5.5                  1655
+6 HANSEN SONG      OH                                  5                    1686
+# ℹ abbreviated name: ¹​`Total Number of Points`
+# ℹ 1 more variable: `Average Pre Chess Rating of Opponents` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Now convert to csv using write.csv()</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(output_df, <span class="st">"tournamentinfo.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="st">"tournamentinfo.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "tournamentinfo.csv"</code></pre>
+</div>
+</div>
 </section>
 </section>
 
