@@ -95,10 +95,10 @@ We can do this with str_match_all() I show first player as example.
 
 ```{r}
 #We create regex for the single pattern of the opponent match, match all will find all the occurrences of it.
-opponent_groupings <- str_match_all(player_info1, "\\|[W|L|H|B|D|U|X] *(\\d*)")
+opponent_groupings <- str_match_all(player_info1, "\\|([W|L|H|B|D|U|X]) *(\\d*)")
 #Opponent_groupings is a list of a 7by2 character array
 #We can get the opponents of the first player as a sample
-(opponent_groupings[[1]])[,2]
+(opponent_groupings[[1]])[,3]
 
 ```
 
@@ -108,9 +108,15 @@ str_match_all created a list of values, first the matches, then the groupings. W
 ```{r}
 #I was not sure how to get this sub-list all at once so I used a loop
 #We initialize a list with vector to give length upfront
+
+
+#*ADDED player_opponents_status to include match results, for future assignment.*
+
 player_opponents <- vector("list", length(opponent_groupings))
+player_opponents_status <- vector("list", length(opponent_groupings))
 for(i in 1 : length(opponent_groupings)){
-  player_opponents[[i]] <- opponent_groupings[[i]][,2]
+  player_opponents[[i]] <- opponent_groupings[[i]][,3]
+  player_opponents_status[[i]] <- paste(opponent_groupings[[i]][,2], opponent_groupings[[i]][,3], sep = "-")
 }
 head(player_opponents, 15)
 ```
@@ -126,10 +132,11 @@ player_data <- data.frame (
   rating = as.numeric(player_rating)
 )
 player_data <- player_data %>% mutate(
-  opponents = player_opponents
+  opponents = player_opponents,
+  opponents_results = player_opponents_status # Added for future assignment
 )
 
-head(player_data,12) #Dataframe is made properly
+head(player_data,12) #Data frame is made properly
 ```
 
 Now we just need to use the opponents column to get the average rating of the opponents
@@ -207,14 +214,15 @@ We can check our tournamentinfo.csv to see we now have the expected output.
 In this project I was able to parse a given file. The file had a uniform format between the lines which made it much easier. I used regex to create groupings to extract the data I needed from the string. After doing this I used dplyr functions as well as created my own function to generate a data frame with the needed information. Once a data frame was created I used write.csv to create a csv file that contained the data formatted from the original text.\
 Some ways I could further improve this project is work more with how winning and losing in a match up effected the players post-tournament rating. As well as explore how the player matches were determined. It would be difficult to apply the same parsing to another text file of different format but exploring other data sources with new regex could also be interesting.
 
-*This segment was added later for a future assignment* \
-We need to export the data again this time with the opponent values. \
+*This segment was added later for a future assignment*\
+We need to export the data again this time with the opponent values.\
 You can not export a data frame with list values, I collapse the list with "-" in between. We can parse this in the next assignment.
+
 ```{r}
-player_data_new <- player_data %>%
-  mutate(
-    opponents = paste(opponents, collapse='-')
-  )
-player_data_new
-write.csv(player_data_new, "player_data.csv", row.names = FALSE) #print, get rid of the index column/row name
+player_data_output <- player_data %>%
+  mutate(opponents = paste(opponents_results, collapse=' ')) %>%
+  select(c("number", "name", "state", "points", "rating", "opponents", "avg_opponent_rating"))
+
+player_data_output
+write.csv(player_data_output, "player_data.csv", row.names = FALSE) #print, get rid of the index column/row name
 ```
