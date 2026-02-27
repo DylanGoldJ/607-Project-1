@@ -4,7 +4,6 @@ format: html
 editor: visual
 ---
 
-
 ## Approach
 
 In this assignment we have to parse a text file that was given to us and use the information in the file to generate a pre-chess rating of all the opponents. Once we do this we create a csv with the Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents.
@@ -13,7 +12,8 @@ The initial challenge is parsing the text file. All the information is on the ro
 
 I will create a data frame with csv output format we need then write.csv() to create our csv.
 
-## Codebase 
+## Codebase
+
 Dplyr set up, as well as stringi for parsing strings better
 
 ```{r , message=FALSE, warning=FALSE}
@@ -81,7 +81,6 @@ player_points <- player_groupings1[,4]
 head(player_name, 8) #Show example
 ```
 
-
 Now in the other list
 
 ```{r}
@@ -92,8 +91,8 @@ head(player_rating, 8)
 ```
 
 Now we need to get the groups for the opponent matches.\
-We can do this with str_match_all()
-I show first player as example.
+We can do this with str_match_all() I show first player as example.
+
 ```{r}
 #We create regex for the single pattern of the opponent match, match all will find all the occurrences of it.
 opponent_groupings <- str_match_all(player_info1, "\\|[W|L|H|B|D|U|X] *(\\d*)")
@@ -103,7 +102,7 @@ opponent_groupings <- str_match_all(player_info1, "\\|[W|L|H|B|D|U|X] *(\\d*)")
 
 ```
 
-Now we make a list of these values. We just want the second column of the previous step. \
+Now we make a list of these values. We just want the second column of the previous step.\
 str_match_all created a list of values, first the matches, then the groupings. We just want the groupings.
 
 ```{r}
@@ -167,34 +166,55 @@ player_data <- player_data %>%
 head(player_data)
 
 ```
-We can also check a row with null values to make sure everything went alright. \
-Ashwin just faced a single opponent. No player faced 0 other players so we don't have to worry about that. He is the 63th player. \
+
+We can also check a row with null values to make sure everything went alright.\
+Ashwin just faced a single opponent. No player faced 0 other players so we don't have to worry about that. He is the 63th player.\
 He faces 55. We can see that Ashwin's avg_opponent_rating is the same rating as player 55, alex kong.
+
 ```{r}
 filter(player_data, number == 62)
 filter(player_data, number == 55)
 ```
-I will also test out one more just to make sure. Lets look at player 16, who faced  10, 15, 39, 2, 36. \
-I calculate myself the average of 1365, 1220, 1436, 1553, 1355. \
+
+I will also test out one more just to make sure. Lets look at player 16, who faced 10, 15, 39, 2, 36.\
+I calculate myself the average of 1365, 1220, 1436, 1553, 1355.\
 This example has opponents with a P after their score.
+
 ```{r}
 mean(c(1365, 1220, 1436, 1553, 1355))
 filter(player_data, number == 16)
 ```
-We tested out some of the rows and everything seems to be working.
-Now lets create a data frame with the output information. \
+
+We tested out some of the rows and everything seems to be working. Now lets create a data frame with the output information.\
+
 ```{r}
 #Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents.
 output_df <-player_data %>% 
   select(c("Player’s Name" = "name","Player’s State" = "state","Total Number of Points" = "points","Player’s Pre-Rating" = "rating", "Average Pre Chess Rating of Opponents" = "avg_opponent_rating")) #also set the names for better readability in the csv
 head(output_df)
 ```
+
 Now convert to csv using write.csv()
+
 ```{r}
 write.csv(output_df, "tournamentinfo.csv", row.names = FALSE) #print, get rid of the index column/row name
 ```
+
 We can check our tournamentinfo.csv to see we now have the expected output.
 
 ## Conclusion
-In this project I was able to parse a given file. The file had a uniform format between the lines which made it much easier. I used regex to create groupings to extract the data I needed from the string. After doing this I used dplyr functions as well as created my own function to generate a data frame with the needed information. Once a data frame was created I used write.csv to create a csv file that contained the data formatted from the original text. \
+
+In this project I was able to parse a given file. The file had a uniform format between the lines which made it much easier. I used regex to create groupings to extract the data I needed from the string. After doing this I used dplyr functions as well as created my own function to generate a data frame with the needed information. Once a data frame was created I used write.csv to create a csv file that contained the data formatted from the original text.\
 Some ways I could further improve this project is work more with how winning and losing in a match up effected the players post-tournament rating. As well as explore how the player matches were determined. It would be difficult to apply the same parsing to another text file of different format but exploring other data sources with new regex could also be interesting.
+
+*This segment was added later for a future assignment* \
+We need to export the data again this time with the opponent values. \
+You can not export a data frame with list values, I collapse the list with "-" in between. We can parse this in the next assignment.
+```{r}
+player_data_new <- player_data %>%
+  mutate(
+    opponents = paste(opponents, collapse='-')
+  )
+player_data_new
+write.csv(player_data_new, "player_data.csv", row.names = FALSE) #print, get rid of the index column/row name
+```

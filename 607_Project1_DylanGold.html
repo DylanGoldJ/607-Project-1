@@ -454,6 +454,34 @@ This example has opponents with a P after their score.</p>
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
 <p>In this project I was able to parse a given file. The file had a uniform format between the lines which made it much easier. I used regex to create groupings to extract the data I needed from the string. After doing this I used dplyr functions as well as created my own function to generate a data frame with the needed information. Once a data frame was created I used write.csv to create a csv file that contained the data formatted from the original text.<br>
 Some ways I could further improve this project is work more with how winning and losing in a match up effected the players post-tournament rating. As well as explore how the player matches were determined. It would be difficult to apply the same parsing to another text file of different format but exploring other data sources with new regex could also be interesting.</p>
+<p><em>This segment was added later for a future assignment</em><br>
+We need to export the data again this time with the opponent values.<br>
+You can not export a data frame with list values, I collapse the list with “-” in between. We can parse this in the next assignment.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>player_data_new <span class="ot">&lt;-</span> player_data <span class="sc">%&gt;%</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">opponents =</span> <span class="fu">paste</span>(opponents, <span class="at">collapse=</span><span class="st">'-'</span>)</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>player_data_new</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 64 × 7
+# Rowwise: 
+   number name                state points rating opponents  avg_opponent_rating
+    &lt;int&gt; &lt;chr&gt;               &lt;chr&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;                    &lt;dbl&gt;
+ 1      1 Gary Hua            ON       6     1794 39-21-18-…               1605.
+ 2      2 Dakshesh Daruri     MI       6     1553 63-58-4-1…               1469.
+ 3      3 Aditya Bajaj        MI       6     1384 8-61-25-2…               1564.
+ 4      4 Patrick H Schilling MI       5.5   1716 23-28-2-2…               1574.
+ 5      5 Hanshi Zuo          MI       5.5   1655 45-37-12-…               1501.
+ 6      6 Hansen Song         OH       5     1686 34-29-11-…               1519.
+ 7      7 Gary Dee Swathell   MI       5     1649 57-46-13-…               1372.
+ 8      8 Ezekiel Houghton    MI       5     1641 3-32-14-9…               1468.
+ 9      9 Stefano Lee         ON       5     1411 25-18-59-…               1523.
+10     10 Anvit Rao           MI       5     1365 16-19-55-…               1554.
+# ℹ 54 more rows</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(player_data_new, <span class="st">"player_data.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>) <span class="co">#print, get rid of the index column/row name</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 
 </main>
